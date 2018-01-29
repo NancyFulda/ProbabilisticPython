@@ -7,8 +7,7 @@ def model( pp ):
         X.append(pp.random(loop_iter=i))
     for i in range(m):
         X.append(pp.normal(loop_iter=i))
+        X.append(pp.normal(loc=10.0, scale=5.0, loop_iter=i))
 
 driver = InferenceDriver(model)
 driver.run_inference()
-
-# driver._sample_erp("randint", {"low": 10, "high": None, "size": None})

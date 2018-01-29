@@ -9,16 +9,24 @@ class TraceTable:
         self.ll = 0
         self.ll_fresh = 0
         self.ll_stale = 0
+        self.active = set()
 
-    def add_entry_to_proposal(self, label, value, erp, parameters, likelihood):
+    def add_entry_to_proposal(self, label, value, erp, parameters, likelihood, add_fresh):
+        if (add_fresh):
+            self.ll_fresh += likelihood
+        self.active.add(label)
         self.proposed_trace[label] = {"value": value,
                         "erp": erp, "parameters": parameters, "likelihood": likelihood}
 
     def read_entry_from_proposal(self, label, erp, parameters):
-        if label in self.proposed_trace and self.proposed_trace["erp"] == erp and self.proposed_trace["parameters"] == parameters:
-            return self.proposed_trace[label]["value"]
+        if label in self.proposed_trace and self.proposed_trace[label]["erp"] == erp:
+            if self.proposed_trace[label]["parameters"] == parameters:
+                self.active.add(label)
+                return self.proposed_trace[label]["value"]
+            else:
+                return False
         else:
-            return None
+            return True
 
     def pick_random_erp(self):
         keys = list(self.trace.keys())
@@ -29,4 +37,27 @@ class TraceTable:
         self.trace = deepcopy(self.proposed_trace)
 
     def propose_new_trace(self):
+        self.ll = 0
+        self.ll_fresh = 0
+        self.ll_stale = 0
+        self.active = set()
         self.proposed_trace = deepcopy(self.trace)
+
+    def collect_ll_stale(self):
+        for label in self.proposed_trace.keys():
+            if label not in self.active:
+                self.ll_stale += self.proposed_trace[label]["likelihood"]
+                del self.proposed_trace[label]
+
+    def collect_ll(self):
+        for label in self.proposed_trace.keys():
+            self.ll += self.proposed_trace[label]["likelihood"]
+
+    def get_lls(self):
+        return self.ll, self.ll_fresh, self.ll_stale
+
+    def score_current_trace(self):
+        ll = 0
+        for label in self.trace.keys():
+            ll += self.trace[label]["likelihood"]
+        return ll
