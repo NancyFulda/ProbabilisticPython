@@ -82,6 +82,26 @@ class ProbPy:
         return first_term + second_term
 
 # ----------------------------------
+# Propsal Kernals
+
+    # x's are independent
+    def sample_erp(self, erp, parameters):
+        execute_string = "np.random." + erp + "("
+        for key in parameters.keys():
+            execute_string += key + "=" + str(parameters[key]) + ", "
+        if len(parameters.keys()) > 0:
+            execute_string = execute_string[:-2]
+        execute_string += ")"
+        return eval(execute_string), 0, 0
+
+    # x's are dependent
+    def simple_proposal_kernal(self, old_value):
+        new_value = np.random.normal(loc=old_value, scale=1.0)
+        F = self._normal_pdf(old_value, 1.0, new_value)
+        R = self._normal_pdf(new_value, 1.0, old_value)
+        return new_value, F, R
+
+# ----------------------------------
 # Helpers
 
     def _get_label(self, loop_iter):

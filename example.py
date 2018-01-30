@@ -10,4 +10,5 @@ def model( pp ):
         X.append(pp.normal(loc=10.0, scale=5.0, loop_iter=i))
 
 driver = InferenceDriver(model)
-driver.run_inference()
+driver.run_inference(steps=100)
+print(driver.return_trace())
