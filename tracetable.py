@@ -10,6 +10,7 @@ class TraceTable:
         self.ll_fresh = 0
         self.ll_stale = 0
         self.active = set()
+        self.clamped = {}
 
     def add_entry_to_proposal(self, label, value, erp, parameters, likelihood, add_fresh):
         if (add_fresh):
@@ -19,6 +20,8 @@ class TraceTable:
                         "erp": erp, "parameters": parameters, "likelihood": likelihood}
 
     def read_entry_from_proposal(self, label, erp, parameters):
+        if label in self.clamped.keys():
+            return self.clamped[label]
         if label in self.proposed_trace and self.proposed_trace[label]["erp"] == erp:
             if self.proposed_trace[label]["parameters"] == parameters:
                 self.active.add(label)
@@ -29,7 +32,9 @@ class TraceTable:
             return True
 
     def pick_random_erp(self):
-        keys = list(self.trace.keys())
+        keys = list(set(self.trace.keys()) - set(self.clamped.keys()))
+        if len(keys) <=0:
+            raise ValueError("The only random variables are clamped...")
         label = keys[np.random.choice(range(len(keys)))]
         return label, self.trace[label]
 
@@ -61,3 +66,8 @@ class TraceTable:
         for label in self.trace.keys():
             ll += self.trace[label]["likelihood"]
         return ll
+
+    def clamp(self, label, value, erp, parameters, likelihood):
+        self.clamped[label] = value
+        self.trace[label] = {"value": value,
+                        "erp": erp, "parameters": parameters, "likelihood": likelihood}

@@ -6,9 +6,6 @@ class InferenceDriver:
     def __init__(self, model):
         self.pp = ProbPy()
         self.model = model
-        # prime the database
-        self.model(self.pp)
-        self.pp.accept_proposed_trace()
 
     def run_inference(self, steps=np.inf):
         while steps > 0:
@@ -34,5 +31,17 @@ class InferenceDriver:
             # step
             steps -= 1
 
+    def init_model(self):
+        # prime the database
+        self.model(self.pp)
+        self.pp.accept_proposed_trace()
+
+    def clamp(self, label, value, erp, parameters):
+        likelihood = self.pp._get_likelihood(erp, parameters, value)
+        self.pp.table.clamp(label, value, erp, parameters, likelihood)
+
     def return_trace(self):
         return self.pp.table.trace
+
+    def return_labels(self):
+        return self.pp.table.trace.keys()

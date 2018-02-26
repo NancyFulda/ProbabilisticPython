@@ -67,6 +67,17 @@ class ProbPy:
             self.table.add_entry_to_proposal(label, value, "normal", parameters, likelihood, add_fresh)
         return value
 
+    def choice(self, elements, size=None, replace=True, p=None, loop_iter=0):
+        label = self._get_label(loop_iter)
+        value = self.table.read_entry_from_proposal(label, "choice", None)
+        if type(value) == bool:
+            add_fresh = value
+            value = np.random.choice(a=elements, size=size, replace=replace, p=p)
+            likelihood = self._categorical_pdf(elements, p, value)
+            parameters = {"elements": elements, "size": size, "replace": replace, "p": p}
+            self.table.add_entry_to_proposal(label, value, "choice", parameters, likelihood, add_fresh)
+        return value
+
 # ----------------------------------
 # Probability Density Functions
 
@@ -80,6 +91,17 @@ class ProbPy:
         first_term = -1.0 * np.log(np.sqrt(2.0 * np.pi * (standard_dev**2)))
         second_term = (-1.0 * (value - mean)**2) / (2.0 * (standard_dev**2))
         return first_term + second_term
+
+    def _categorical_pdf(self, elements, p, value):
+        if p == None:
+            num_of_elements = len(elements)
+            pdf = 1.0 / num_of_elements
+        else:
+            pdf = 0.0
+            for i in range(len(elements)):
+                if elements[i] == value:
+                    pdf += p[i]
+        return np.log(pdf)
 
 # ----------------------------------
 # Propsal Kernals
@@ -118,3 +140,5 @@ class ProbPy:
             return self._uniform_pdf(parameters["low"], parameters["high"])
         elif erp == "normal":
             return self._normal_pdf(parameters["loc"], parameters["scale"], value)
+        elif erp == "choice":
+            return self._categorical_pdf(parameters["elements"], parameters["p"], value)
