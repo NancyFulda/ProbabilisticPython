@@ -15,7 +15,7 @@ def model( pp ):
 # Create object by passing your model function
 driver = InferenceDriver(model)
 
-# Clamp the variables you want to stay
+# Clamp the variables you want to stay (feed in line number and loop iter)
 driver.clamp(label="6-0", value=3, erp="randint", parameters={"low":10, "high":None, "size":None})
 
 # Init the model and run inference
