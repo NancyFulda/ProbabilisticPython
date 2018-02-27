@@ -67,7 +67,5 @@ class TraceTable:
             ll += self.trace[label]["likelihood"]
         return ll
 
-    def clamp(self, label, value, erp, parameters, likelihood):
+    def condition(self, label, value):
         self.clamped[label] = value
-        self.trace[label] = {"value": value,
-                        "erp": erp, "parameters": parameters, "likelihood": likelihood}

@@ -34,48 +34,56 @@ class ProbPy:
 # ----------------------------------
 # Primitives
 
-    def random(self, size=None, loop_iter=0):
-        label = self._get_label(loop_iter)
+    def random(self, name, size=None, loop_iter=0):
+        label = self._get_label(name, loop_iter)
         value = self.table.read_entry_from_proposal(label, "random", None)
         if type(value) == bool:
             add_fresh = value
             value = np.random.random(size=size)
-            likelihood = self._uniform_pdf(0, 1)
-            parameters = {}
-            self.table.add_entry_to_proposal(label, value, "random", parameters, likelihood, add_fresh)
+        else:
+            add_fresh = False
+        likelihood = self._uniform_pdf(0, 1)
+        parameters = {}
+        self.table.add_entry_to_proposal(label, value, "random", parameters, likelihood, add_fresh)
         return value
 
-    def randint(self, low, high=None, size=None, loop_iter=0):
-        label = self._get_label(loop_iter)
+    def randint(self, name, low, high=None, size=None, loop_iter=0):
+        label = self._get_label(name, loop_iter)
         value = self.table.read_entry_from_proposal(label, "randint", None)
         if type(value) == bool:
             add_fresh = value
             value = np.random.randint(low=low, high=high, size=size)
-            likelihood = self._uniform_pdf(low, high)
-            parameters = {"low": low, "high": high, "size": size}
-            self.table.add_entry_to_proposal(label, value, "randint", parameters, likelihood, add_fresh)
+        else:
+            add_fresh = False
+        likelihood = self._uniform_pdf(low, high)
+        parameters = {"low": low, "high": high, "size": size}
+        self.table.add_entry_to_proposal(label, value, "randint", parameters, likelihood, add_fresh)
         return value
 
-    def normal(self, loc=0.0, scale=1.0, size=None, loop_iter=0):
-        label = self._get_label(loop_iter)
+    def normal(self, name, loc=0.0, scale=1.0, size=None, loop_iter=0):
+        label = self._get_label(name, loop_iter)
         value = self.table.read_entry_from_proposal(label, "normal", None)
         if type(value) == bool:
             add_fresh = value
             value = np.random.normal(loc=loc, scale=scale, size=size)
-            likelihood = self._normal_pdf(loc, scale, value)
-            parameters = {"loc": loc, "scale": scale, "size": size}
-            self.table.add_entry_to_proposal(label, value, "normal", parameters, likelihood, add_fresh)
+        else:
+            add_fresh = False
+        likelihood = self._normal_pdf(loc, scale, value)
+        parameters = {"loc": loc, "scale": scale, "size": size}
+        self.table.add_entry_to_proposal(label, value, "normal", parameters, likelihood, add_fresh)
         return value
 
-    def choice(self, elements, size=None, replace=True, p=None, loop_iter=0):
-        label = self._get_label(loop_iter)
+    def choice(self, name, elements, size=None, replace=True, p=None, loop_iter=0):
+        label = self._get_label(name, loop_iter)
         value = self.table.read_entry_from_proposal(label, "choice", None)
         if type(value) == bool:
             add_fresh = value
             value = np.random.choice(a=elements, size=size, replace=replace, p=p)
-            likelihood = self._categorical_pdf(elements, p, value)
-            parameters = {"elements": elements, "size": size, "replace": replace, "p": p}
-            self.table.add_entry_to_proposal(label, value, "choice", parameters, likelihood, add_fresh)
+        else:
+            add_fresh = False
+        likelihood = self._categorical_pdf(elements, p, value)
+        parameters = {"elements": elements, "size": size, "replace": replace, "p": p}
+        self.table.add_entry_to_proposal(label, value, "choice", parameters, likelihood, add_fresh)
         return value
 
 # ----------------------------------
@@ -126,11 +134,15 @@ class ProbPy:
 # ----------------------------------
 # Helpers
 
-    def _get_label(self, loop_iter):
+    # deprecated
+    def _get_line_label(self, loop_iter):
         stack = inspect.stack()
         caller_stack = stack[2]
         label = str(caller_stack[2]) + "-" + str(loop_iter)
         return label
+
+    def _get_label(self, name, loop_iter):
+        return name + "-" + str(loop_iter)
 
     # TODO: find a cleaner way to do this
     def _get_likelihood(self, erp, parameters, value):

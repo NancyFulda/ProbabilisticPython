@@ -1,6 +1,13 @@
 from inferencedriver import InferenceDriver
 import numpy as np
 
+
+'''
+
+DON'T USE THIS IS DEPRECATED
+
+'''
+
 # ----------------------------------
 # This module implements Baker et al.'s Food Truck problem
 # in which the agent must infer a student's food preferences.
