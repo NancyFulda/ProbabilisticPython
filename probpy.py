@@ -126,9 +126,10 @@ class ProbPy:
 
     # x's are dependent
     def simple_proposal_kernal(self, old_value):
-        new_value = np.random.normal(loc=old_value, scale=1.0)
-        F = self._normal_pdf(old_value, 1.0, new_value)
-        R = self._normal_pdf(new_value, 1.0, old_value)
+        var = .9
+        new_value = np.random.normal(loc=old_value, scale=var)
+        F = self._normal_pdf(old_value, var, new_value)
+        R = self._normal_pdf(new_value, var, old_value)
         return new_value, F, R
 
 # ----------------------------------

@@ -69,3 +69,6 @@ class TraceTable:
 
     def condition(self, label, value):
         self.clamped[label] = value
+        
+    def prior(self, label, value):
+        self.trace[label]["value"] = value

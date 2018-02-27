@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 from probpy import ProbPy
 
@@ -8,6 +9,7 @@ class InferenceDriver:
         self.pp = ProbPy()
         self.model = model
         self.samples = []
+        self.lls = []
 
     def init_model(self):
         # prime the database
@@ -31,12 +33,12 @@ class InferenceDriver:
     def inference_step(self):
         # score the current trace
         ll = self.pp.score_current_trace()
+        self.lls.append(ll)
         # start new trace (copy of the old trace)
         self.pp.propose_new_trace()
         # pick a random ERP
         label, entry = self.pp.pick_random_erp()
         # propose a new value
-        # value, F, R = pp.sample_erp(entry["erp"], entry["parameters"])
         value, F, R = self.pp.simple_proposal_kernal(entry["value"])
         self.pp.store_new_erp(label, value, entry["erp"], entry["parameters"])
         # re-run the model
@@ -52,6 +54,9 @@ class InferenceDriver:
     def condition(self, label, value):
         self.pp.table.condition(label, value)
 
+    def prior(self, label, value):
+        self.pp.table.prior(label, value)
+
     def return_traces(self):
         return self.samples
 
@@ -65,3 +70,7 @@ class InferenceDriver:
                     else:
                         values[key] = item["value"]
         return values
+
+    def graph_ll(self):
+        plt.plot(range(len(self.lls)), self.lls)
+        plt.show()
