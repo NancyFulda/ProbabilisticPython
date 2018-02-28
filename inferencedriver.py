@@ -1,7 +1,11 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 from probpy import ProbPy
+
+import copy
 
 class InferenceDriver:
 
@@ -23,11 +27,12 @@ class InferenceDriver:
         print("Burn in: %.2fs" % (timer() - start))
 
     def run_inference(self, interval, samples):
+        self.num_samples = samples
         total_start = timer()
         for s in range(samples):
             for i in range(interval):
                 self.inference_step()
-            self.samples.append(self.pp.table.trace)
+            self.samples.append(copy.deepcopy(self.pp.table.trace))
         print("Total inference: %.2fs" % (timer() - total_start))
 
     def inference_step(self):
@@ -62,15 +67,32 @@ class InferenceDriver:
 
     def return_values(self, keys):
         values = {}
+        val_cnt = 0.0
         for s in self.samples:
             for key, item in s.items():
                 if key.split("-")[0] in keys:
                     if key in values:
-                        values[key] = float(values[key] + item["value"]) / 2.0
+                        #values[key] = float(values[key] + item["value"]) / 2.0
+                        values[key] = float(values[key] + item["value"])
+                        val_cnt += 1
                     else:
                         values[key] = item["value"]
-        return values
+        #return values
+        return {k: v / val_cnt for k, v in values.iteritems()}
+
+    def return_plt_data(self, keys):
+        data = {}
+                
+        for k in keys:
+            data[k] = []
+            for s in self.samples:
+                values_dict = {}
+                for key, item in s.items():
+                    if k + '-0' == key:
+                        data[k].append(item['value'])
+        return data
 
     def graph_ll(self):
         plt.plot(range(len(self.lls)), self.lls)
-        plt.show()
+        #plt.show()
+        plt.savefig("figure.png")

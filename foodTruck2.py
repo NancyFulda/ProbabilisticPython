@@ -1,13 +1,17 @@
 from inferencedriver import InferenceDriver
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 # ----------------------------------
 # This module implements Baker et al.'s Food Truck problem
 # in which the agent must infer a student's food preferences.
 #
 # There are three types of truck: Korean, Lebanese, and Mexican.
-# Each student has a strict preference ordering over food types, 
-# and the agent's job is to predict the student's behavior.
+# Each student has a preference value for each food type, 
+# and the agent's job is to predict the student's preferences
+# given observations of the student's behavior.
 
 
 # ----------------------------------
@@ -67,10 +71,11 @@ driver.prior(label="lebanese-0", value=.5)
 driver.prior(label="mexican-0", value=.9)
 
 # burn in
-driver.burn_in(steps=100)
+#driver.burn_in(steps=100)
 
 # run inference
 driver.run_inference(interval=5, samples=500)
+mydata = driver.return_plt_data(keys=["korean","lebanese","mexican"])
 
 # print estimated preferences
 labeled_prefs = list(zip(TRUCK_TYPES, TRUE_PREFERENCES))
@@ -89,4 +94,14 @@ for key in data_pref.keys():
 print("Data:", data_pref)
 
 # graph your likelihood
-driver.graph_ll()
+#driver.graph_ll()
+
+#plot the inference data
+plt.plot(range(len(mydata['korean'])),mydata['korean'],label='Korean')
+plt.plot(range(len(mydata['lebanese'])),mydata['lebanese'],label='Lebanese')
+plt.plot(range(len(mydata['mexican'])),mydata['mexican'],label='Mexican')
+plt.legend()
+plt.savefig("results.png")
+
+print mydata['mexican'][10]
+
