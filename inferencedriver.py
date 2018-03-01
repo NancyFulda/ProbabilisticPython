@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 from probpy import ProbPy
@@ -30,6 +30,7 @@ class InferenceDriver:
         self.num_samples = samples
         total_start = timer()
         for s in range(samples):
+            print "sample %d" % (s)
             for i in range(interval):
                 self.inference_step()
             self.samples.append(copy.deepcopy(self.pp.table.trace))
@@ -67,18 +68,19 @@ class InferenceDriver:
 
     def return_values(self, keys):
         values = {}
-        val_cnt = 0.0
+        val_cnt = {}
         for s in self.samples:
             for key, item in s.items():
                 if key.split("-")[0] in keys:
                     if key in values:
                         #values[key] = float(values[key] + item["value"]) / 2.0
                         values[key] = float(values[key] + item["value"])
-                        val_cnt += 1
+                        val_cnt[key] += 1
                     else:
                         values[key] = item["value"]
+                        val_cnt[key] = 1.0
         #return values
-        return {k: v / val_cnt for k, v in values.iteritems()}
+        return {k: v / val_cnt[k] for k, v in values.iteritems()}
 
     def return_plt_data(self, keys):
         data = {}
@@ -94,5 +96,5 @@ class InferenceDriver:
 
     def graph_ll(self):
         plt.plot(range(len(self.lls)), self.lls)
-        #plt.show()
         plt.savefig("figure.png")
+        plt.show()
