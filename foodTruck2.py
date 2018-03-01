@@ -1,7 +1,7 @@
 from inferencedriver import InferenceDriver
 import numpy as np
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # ----------------------------------
@@ -27,21 +27,25 @@ def generate_dataset(size, types, preferences):
             truck1= np.random.choice(types)
             chance_of_eating = preferences[types.index(truck1)]
             eats1 = np.random.choice([1, 0], p=[chance_of_eating, 1.0-chance_of_eating])
-            #SECOND OBSERVATION
-            #student sees a second truck, and eats from it based on
-            #preferences of the two trucks in comparison to each other
-            remaining_types = types[:]
-            remaining_types.remove(truck1)
-            truck2= np.random.choice(remaining_types)
-            chance_of_eating = preferences[types.index(truck2)]/( preferences[types.index(truck1)] + preferences[types.index(truck2)])
-            eats2 = np.random.choice([1, 0], p=[chance_of_eating, 1.0-chance_of_eating])
-            data.append((truck1, eats1, truck2, eats2))
+            #if eats == 1:
+            #    data.append((truck1, eats1, truck1, 0))
+            #else:
+            if 1:
+                #SECOND OBSERVATION
+                #student sees a second truck, and eats from it based on
+                #preferences of the two trucks in comparison to each other
+                remaining_types = types[:]
+                remaining_types.remove(truck1)
+                truck2= np.random.choice(remaining_types)
+                chance_of_eating = preferences[types.index(truck2)]/( preferences[types.index(truck1)] + preferences[types.index(truck2)])
+                eats2 = np.random.choice([1, 0], p=[chance_of_eating, 1.0-chance_of_eating])
+                data.append((truck1, eats1, truck2, eats2))
         return data
 
 
 TRUCK_TYPES = ['Korean', 'Lebanese', 'Mexican']
 TRUE_PREFERENCES = [.1, .5, .9]
-DATASET_SIZE = 1000
+DATASET_SIZE = 100
 data = generate_dataset(size=DATASET_SIZE, types=TRUCK_TYPES, preferences=TRUE_PREFERENCES)
 
 # ----------------------------------
@@ -69,11 +73,15 @@ def model( pp ):
         probs = [chance_of_eating, 1.0-chance_of_eating]
         eats1 = pp.choice(name="eats1", elements=[1,0], p=probs, loop_iter=i)
         
-        #Student will eat the first with probability based on relative
-        #preferences of the two trucks
-        chance_of_eating = preferences[TRUCK_TYPES.index(truck_type2)]/( preferences[TRUCK_TYPES.index(truck_type1)] + preferences[TRUCK_TYPES.index(truck_type2)])
-        probs = [chance_of_eating, 1.0-chance_of_eating]
-        eats1 = pp.choice(name="eats1", elements=[1,0], p=probs, loop_iter=i)
+        #if eats1 == 1:
+        #    pass
+        #else:
+        if 1:
+            #Student will eat the first with probability based on relative
+            #preferences of the two trucks
+            chance_of_eating = preferences[TRUCK_TYPES.index(truck_type2)]/( preferences[TRUCK_TYPES.index(truck_type1)] + preferences[TRUCK_TYPES.index(truck_type2)])
+            probs = [chance_of_eating, 1.0-chance_of_eating]
+            eats2 = pp.choice(name="eats2", elements=[1,0], p=probs, loop_iter=i)
 
 # ----------------------------------
 # Run inference
@@ -95,10 +103,11 @@ driver.prior(label="lebanese-0", value=.5)
 driver.prior(label="mexican-0", value=.9)
 
 # burn in
-driver.burn_in(steps=1000)
+#driver.burn_in(steps=100)
 
 # run inference
-driver.run_inference(interval=10, samples=100)
+#driver.run_inference(interval=5, samples=500)
+driver.run_inference(interval=5, samples=100)
 mydata = driver.return_plt_data(keys=["korean","lebanese","mexican"])
 
 # print estimated preferences
@@ -127,5 +136,5 @@ plt.plot(range(len(mydata['lebanese'])),mydata['lebanese'],label='Lebanese')
 plt.plot(range(len(mydata['mexican'])),mydata['mexican'],label='Mexican')
 plt.legend()
 plt.savefig("results.png")
-plt.show()
+#plt.show()
 

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 from probpy import ProbPy
@@ -30,7 +30,8 @@ class InferenceDriver:
         self.num_samples = samples
         total_start = timer()
         for s in range(samples):
-            print "sample %d" % (s)
+            if s%10 == 0:
+                print "sample %d" % (s)
             for i in range(interval):
                 self.inference_step()
             self.samples.append(copy.deepcopy(self.pp.table.trace))
@@ -97,4 +98,4 @@ class InferenceDriver:
     def graph_ll(self):
         plt.plot(range(len(self.lls)), self.lls)
         plt.savefig("figure.png")
-        plt.show()
+        #plt.show()
