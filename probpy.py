@@ -132,6 +132,12 @@ class ProbPy:
         R = self._normal_pdf(new_value, var, old_value)
         return new_value, F, R
 
+    def choice_proposal_kernal(self, old_value, elements, p):
+        new_value = np.random.choice(a=elements, p=p)
+        F = self._categorical_pdf(elements, p, new_value)
+        R = self._categorical_pdf(elements, p, old_value)
+        return new_value, F, R
+
 # ----------------------------------
 # Helpers
 

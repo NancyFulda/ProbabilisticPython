@@ -31,7 +31,7 @@ class InferenceDriver:
         total_start = timer()
         for s in range(samples):
             if s%10 == 0:
-                print "sample %d" % (s)
+                print("sample %d" % (s))
             for i in range(interval):
                 self.inference_step()
             self.samples.append(copy.deepcopy(self.pp.table.trace))
@@ -46,7 +46,11 @@ class InferenceDriver:
         # pick a random ERP
         label, entry = self.pp.pick_random_erp()
         # propose a new value
-        value, F, R = self.pp.simple_proposal_kernal(entry["value"])
+        if entry["erp"] == "choice":
+            value, F, R = self.pp.choice_proposal_kernal(entry["value"],
+                entry["parameters"]["elements"], entry["parameters"]["p"])
+        else:
+            value, F, R = self.pp.simple_proposal_kernal(entry["value"])
         self.pp.store_new_erp(label, value, entry["erp"], entry["parameters"])
         # re-run the model
         self.model(self.pp)
@@ -81,7 +85,18 @@ class InferenceDriver:
                         values[key] = item["value"]
                         val_cnt[key] = 1.0
         #return values
-        return {k: v / val_cnt[k] for k, v in values.iteritems()}
+        return {k: v / val_cnt[k] for k, v in values.items()}
+
+    def return_string_values(self, keys):
+        values = {}
+        for s in self.samples:
+            for key, item in s.items():
+                if key.split("-")[0] in keys:
+                    if key in values:
+                        values[key].append(item["value"])
+                    else:
+                        values[key] = [item["value"]]
+        return values
 
     def return_plt_data(self, keys):
         data = {}
@@ -97,5 +112,4 @@ class InferenceDriver:
 
     def graph_ll(self):
         plt.plot(range(len(self.lls)), self.lls)
-        plt.savefig("figure.png")
-        #plt.show()
+        plt.savefig("ll_figure.png")
