@@ -52,21 +52,22 @@ def model(pp):
     user_emotional_bias = [user_none, user_anger, user_disgust, user_fear,
                                 user_happiness, user_sadness, user_surprise]
     user_emotional_bias /= np.sum(user_emotional_bias)
-    user_emo_prev = pp.choice(elements=emotions, p=user_emotional_bias, name="user_emo_prev")
-    print("User Emo Prev:", user_emo_prev)
 
     for i in range(len(PARSER.observations)):
+        user_emo_prev = pp.choice(elements=emotions, p=user_emotional_bias, name="user_emo_prev", loop_iter=i)
+        print("User emotion prev:", user_emo_prev)
+
         user_text = sampled_user_text(pp, i, user_emo_prev) # Condition here
-        print("User text:", user_text)
+        # print("User text:", user_text)
 
         eve_emo = emotional_response(pp, "eve_emo", i, user_text, EVE_EMOTIONAL_BIAS)
-        print("Eve emotion:", eve_emo)
+        # print("Eve emotion:", eve_emo)
 
         eve_text = generated_eve_text(pp, i, eve_emo, user_text)
-        print("Eve text:", eve_text)
+        # print("Eve text:", eve_text)
         
         user_emo = emotional_response(pp, "user_emo", i, eve_text, user_emotional_bias) # Condition here
-        print("User emotion:", user_emo)
+        # print("User emotion:", user_emo)
 
         user_emo_prev = user_emo
 
@@ -108,8 +109,8 @@ driver.run_inference(interval=5, samples=1)
 
 # print estimated preferences
 # print(driver.return_traces())
-print("Estimated:", driver.return_string_values(keys=["user_emo", "eve_emo",
-        "sample_eve_text", "sample_user_text"]))
+# print("Estimated:", driver.return_string_values(keys=["user_emo", "eve_emo",
+        # "sample_eve_text", "sample_user_text"]))
 
 found_user_bias = driver.return_values(keys=["user_none", "user_anger",
                 "user_disgust", "user_fear", "user_happiness", "user_sadness", "user_surprise"])

@@ -51,6 +51,7 @@ class InferenceDriver:
                 entry["parameters"]["elements"], entry["parameters"]["p"])
         else:
             value, F, R = self.pp.simple_proposal_kernal(entry["value"])
+        # value, F, R = self.pp.sample_erp(entry["erp"], entry["parameters"]) # sample kernal
         self.pp.store_new_erp(label, value, entry["erp"], entry["parameters"])
         # re-run the model
         self.model(self.pp)

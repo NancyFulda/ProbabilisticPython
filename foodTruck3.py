@@ -101,7 +101,7 @@ driver.init_model()
 #driver.prior(label="mexican-0", value=.9)
 
 # burn in
-#driver.burn_in(steps=100)
+# driver.burn_in(steps=100)
 
 # run inference
 driver.run_inference(interval=1, samples=100)
