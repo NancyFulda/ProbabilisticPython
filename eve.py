@@ -53,20 +53,20 @@ def model(pp):
                                 user_happiness, user_sadness, user_surprise]
     user_emotional_bias /= np.sum(user_emotional_bias)
     user_emo_prev = pp.choice(elements=emotions, p=user_emotional_bias, name="user_emo_prev")
-    # print("User Emo Prev:", user_emo_prev)
+    print("User Emo Prev:", user_emo_prev)
 
     for i in range(len(PARSER.observations)):
         user_text = sampled_user_text(pp, i, user_emo_prev) # Condition here
-        # print("User text:", user_text)
+        print("User text:", user_text)
 
         eve_emo = emotional_response(pp, "eve_emo", i, user_text, EVE_EMOTIONAL_BIAS)
-        # print("Eve emotion:", eve_emo)
+        print("Eve emotion:", eve_emo)
 
         eve_text = generated_eve_text(pp, i, eve_emo, user_text)
-        # print("Eve text:", eve_text)
+        print("Eve text:", eve_text)
         
         user_emo = emotional_response(pp, "user_emo", i, eve_text, user_emotional_bias) # Condition here
-        # print("User emotion:", user_emo)
+        print("User emotion:", user_emo)
 
         user_emo_prev = user_emo
 

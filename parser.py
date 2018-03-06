@@ -61,7 +61,7 @@ class Parser:
                 self.observations.append([self.EMOTIONS[int(emotion[i])],
                                           text[i],
                                           self.EMOTIONS[int(emotion[i + 1])],
-                                          text[i],
+                                          text[i+1],
                                           self.EMOTIONS[int(emotion[i + 2])]])
 
 

@@ -101,7 +101,8 @@ class ProbPy:
         return first_term + second_term
 
     def _categorical_pdf(self, elements, p, value):
-        if p == None:
+        #if p == None:
+        if p is None:
             num_of_elements = len(elements)
             pdf = 1.0 / num_of_elements
         else:
